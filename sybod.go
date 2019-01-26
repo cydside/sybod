@@ -102,7 +102,7 @@ func readBucket(bkt *Container, b *bolt.Bucket) {
 //______________________________________________________________________________
 
 func pour(bkt *Container, fileName string) {
-	db, err := bolt.Open(`copy_`+fileName, 0600, nil)
+	db, err := bolt.Open(`shrank_`+fileName, 0600, nil)
 	if err != nil {
 		fmt.Println("Can't open destination db", err)
 		os.Exit(1)
