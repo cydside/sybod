@@ -6,6 +6,14 @@ When you are testing CRUD operation on your BoltDB file and it only grows and ne
 
 This project is based on [bbolt](https://github.com/coreos/bbolt) as the boltdb's author [suggest](https://github.com/boltdb/bolt#a-message-from-the-author).
 
+## Installing
+
+To start using sybob, install Go and run `go get`:
+
+```sh
+$ go get github.com/cydside/sybod
+```
+
 ## Usage
 
 	sybod data.db
