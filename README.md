@@ -20,6 +20,6 @@ $ go get github.com/cydside/sybod
   
 It will create a copy of data.db named:
 
-	copy_data.db
+	shrank_data.db
   
 Try it and let me know!
