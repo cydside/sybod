@@ -18,8 +18,10 @@ $ go get github.com/cydside/sybod
 
 	sybod data.db
   
-It will create a copy of data.db named:
+	sybod data.db destination.db
+  
+Without destination file name it will create a copy of data.db named:
 
-	shrank_data.db
+	newcopy_data.db
   
 Try it and let me know!
