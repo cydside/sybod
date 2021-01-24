@@ -227,13 +227,11 @@ func insertEntry(db *bolt.DB, entry []Entry, bktPath *[]string) error {
 //______________________________________________________________________________
 
 func isValid(fp string) bool {
-	fmt.Println("isValid: ", fp)
 	// Check if file already exists
 	if _, err := os.Stat(fp); err == nil {
 		return true
 	}
 
-	fmt.Println("isValid")
 	// Attempt to create it
 	var d []byte
 	if err := ioutil.WriteFile(fp, d, 0644); err == nil {
@@ -241,6 +239,5 @@ func isValid(fp string) bool {
 		return true
 	}
 
-	fmt.Println("isValid")
 	return false
 }
