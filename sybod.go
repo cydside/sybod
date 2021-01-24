@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	bolt "go.etcd.io/bbolt"
@@ -31,9 +32,10 @@ type Container struct {
 func main() {
 	args := os.Args
 	if len(args) < 2 {
-		fmt.Println("sybod: No db file provided, bye!")
+		fmt.Println("sybod (ver 1.0.3): No db file provided, bye!")
 		os.Exit(1)
 	}
+
 	fileName := args[1]
 	db, err := bolt.Open(fileName, 0600, nil)
 	if err != nil {
@@ -41,14 +43,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	destFileName := "newcopy_" + fileName
+	if len(args) == 3 {
+		if isValid(args[2]) {
+			destFileName = args[2]
+		} else {
+			fmt.Println("Destination file name not valid, changed to default: ", destFileName)
+		}
+	}
+
 	data := dump(db)
-	pour(data, fileName)
+	pour(data, destFileName)
 
 	err = db.Close()
 	if err != nil {
 		fmt.Println("Can't close source db", err)
 		os.Exit(1)
 	}
+
 }
 
 //______________________________________________________________________________
@@ -101,15 +113,15 @@ func readBucket(bkt *Container, b *bolt.Bucket) {
 
 //______________________________________________________________________________
 
-func pour(bkt *Container, fileName string) {
-	db, err := bolt.Open(`shrank_`+fileName, 0600, nil)
+func pour(bkt *Container, destFileName string) {
+	db, err := bolt.Open(destFileName, 0600, nil)
 	if err != nil {
 		fmt.Println("Can't open destination db", err)
 		os.Exit(1)
 	}
 
 	var bktPath []string
-	readStruct(db, bkt, bktPath)
+	copyTree(db, bkt, bktPath)
 
 	err = db.Close()
 	if err != nil {
@@ -120,7 +132,7 @@ func pour(bkt *Container, fileName string) {
 
 //______________________________________________________________________________
 
-func readStruct(db *bolt.DB, bkt *Container, bktPath []string) {
+func copyTree(db *bolt.DB, bkt *Container, bktPath []string) {
 	var err error
 
 	for _, cb := range bkt.SubBuckets {
@@ -128,7 +140,7 @@ func readStruct(db *bolt.DB, bkt *Container, bktPath []string) {
 		fmt.Printf("Bucket path: %v\nEntries: %d\n\n", bktPath, len(cb.Entries))
 
 		if cb.SubBuckets != nil {
-			readStruct(db, &cb, bktPath)
+			copyTree(db, &cb, bktPath)
 		}
 
 		err = makeBucket(db, &bktPath)
@@ -210,4 +222,25 @@ func insertEntry(db *bolt.DB, entry []Entry, bktPath *[]string) error {
 	}
 
 	return err
+}
+
+//______________________________________________________________________________
+
+func isValid(fp string) bool {
+	fmt.Println("isValid: ", fp)
+	// Check if file already exists
+	if _, err := os.Stat(fp); err == nil {
+		return true
+	}
+
+	fmt.Println("isValid")
+	// Attempt to create it
+	var d []byte
+	if err := ioutil.WriteFile(fp, d, 0644); err == nil {
+		os.Remove(fp) // And delete it
+		return true
+	}
+
+	fmt.Println("isValid")
+	return false
 }
